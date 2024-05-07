@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Evaluation Report</title>
+</head>
+<body>
+    <h1>Model Evaluation Report</h1>
+    <h2>Comparison Plots</h2>
+    {% for metric, plot_html in comparison_plots.items() %}
+    <div>
+        <h3>{{ metric }}</h3>
+        {{ plot_html|safe }}
+    </div>
+    {% endfor %}
+    <h2>Other Metrics</h2>
+    <table>
+        <tr>
+            <th>Classifier</th>
+            <th>Precision Before</th>
+            <th>Precision After</th>
+            <th>Recall Before</th>
+            <th>Recall After</th>
+            <th>ROC AUC Before</th>
+            <th>ROC AUC After</th>
+        </tr>
+        {% for model in classifiers %}
+        <tr>
+            <td>{{ model }}</td>
+            <td>{{ results_before[model]['Precision']|round(2) }}</td>
+            <td>{{ results_after[model]['Precision']|round(2) }}</td>
+            <td>{{ results_before[model]['Recall']|round(2) }}</td>
+            <td>{{ results_after[model]['Recall']|round(2) }}</td>
+            <td>{{ results_before[model]['ROC AUC']|round(2) }}</td>
+            <td>{{ results_after[model]['ROC AUC']|round(2) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
