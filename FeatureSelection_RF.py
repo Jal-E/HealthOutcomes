@@ -1,16 +1,16 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, f1_score
 
 # Load the preprocessed dataset
-df = pd.read_csv('../HealthOutcome/processed_dataset.csv')
+df = pd.read_csv('processed_dataset.csv')
 
 # Separate the features and the target variable
 X = df.drop('NObeyesdad', axis=1)
@@ -19,6 +19,7 @@ y = df['NObeyesdad']
 # Scaling features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
+X_scaled = pd.DataFrame(X_scaled, columns=X.columns)  # Converting back to DataFrame to keep column names
 
 # Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
@@ -31,23 +32,25 @@ classifiers = {
     'Decision Tree': DecisionTreeClassifier(random_state=42)
 }
 
-# Function to train and evaluate classifiers
-def evaluate_classifiers(X_train, X_test, y_train, y_test):
+# Define perfromance metrics
+metrics = {
+    'Accuracy': accuracy_score,
+    'Precision': lambda y_true, y_pred: precision_score(y_true, y_pred, average='weighted'),
+    'F1 Score': lambda y_true, y_pred: f1_score(y_true, y_pred, average='weighted')
+}
+
+# Function to train and evaluate classifiers using cross-validation
+def evaluate_classifiers_cv(X, y, metrics):
     results = {}
     for name, clf in classifiers.items():
-        clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        results[name] = {
-            'Accuracy': accuracy_score(y_test, y_pred),
-            'Precision': precision_score(y_test, y_pred, average='weighted'),
-            'Recall': recall_score(y_test, y_pred, average='weighted'),
-            'F1 Score': f1_score(y_test, y_pred, average='weighted'),
-            'ROC AUC': roc_auc_score(y_test, clf.predict_proba(X_test), average='weighted', multi_class='ovr')
-        }
+        results[name] = {}
+        for metric_name, metric in metrics.items():
+            score = cross_val_score(clf, X, y, scoring=make_scorer(metric), cv=5).mean()
+            results[name][metric_name] = score
     return results
 
-# Evaluate classifiers before feature selection
-results_before = evaluate_classifiers(X_train, X_test, y_train, y_test)
+# Evaluate classifiers BEFORE feature selection using cross-validation
+results_before = evaluate_classifiers_cv(X_scaled, y, metrics)
 
 # Feature selection based on Random Forest importance
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -56,19 +59,29 @@ importances = rf.feature_importances_
 features = X.columns
 threshold = 0.06
 selected_features = [features[i] for i in range(len(importances)) if importances[i] >= threshold]
-dropped_features = [features[i] for i in range(len(importances)) if importances[i] < threshold]
-X_selected = X.loc[:, selected_features]
+X_selected = X_scaled[selected_features]
 
-print("Dropped Features:", dropped_features)
-print("Selected Features:", selected_features)
-print("Original number of features:", len(features))
-print("Number of features after selection:", len(selected_features))
+X_train_selected, X_test_selected, y_train_selected, y_test_selected = train_test_split(
+    X_selected, y, test_size=0.2, random_state=42)
 
-# Split the data with selected features
-X_train_selected, X_test_selected, _, _ = train_test_split(X_selected, y, test_size=0.2, random_state=42)
+# Evaluate classifiers AFTER feature selection using cross-validation
+results_after = evaluate_classifiers_cv(X_selected, y, metrics)
 
-# Evaluate classifiers after feature selection
-results_after = evaluate_classifiers(X_train_selected, X_test_selected, y_train, y_test)
+# Function to save errors only for the best-performing model acc. f1 score
+def save_errors_best_model():
+    best_model_name = max(results_after, key=lambda x: results_after[x]['F1 Score'])
+    best_model = classifiers[best_model_name]
+    best_model.fit(X_train_selected, y_train_selected)
+    predictions = best_model.predict(X_test_selected)
+    misclassified_indices = np.where(predictions != y_test_selected)[0]
+    misclassified_data = X_test_selected.iloc[misclassified_indices].copy()
+    misclassified_data.loc[:, 'True Label'] = y_test_selected.iloc[misclassified_indices].values
+    misclassified_data.loc[:, 'Predicted Label'] = predictions[misclassified_indices]
+    misclassified_data.loc[:, 'Model'] = best_model_name
+    misclassified_data.to_csv(f'../HealthOutcome/{best_model_name}_errors_after_feature_selection.csv', index=False)
+    print(f"Error details for {best_model_name} saved to CSV.")
+
+save_errors_best_model()
 
 # Visualization and print of results
 def plot_results(results_before, results_after, metric):
@@ -92,152 +105,9 @@ def plot_results(results_before, results_after, metric):
     fig.tight_layout()
     plt.show()
 
-    # Printing metric values before and after
     for label in labels:
         print(f"{label} {metric} Before: {results_before[label][metric]:.4f}, After: {results_after[label][metric]:.4f}")
 
-# Plot for each metric
-for metric in ['Accuracy', 'Precision', 'Recall', 'F1 Score', 'ROC AUC']:
+# Plot for selected metrics
+for metric in ['Accuracy', 'Precision', 'F1 Score']:
     plot_results(results_before, results_after, metric)
-
-#Only Accuracy checked
-'''import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-
-# Load the preprocessed dataset
-df = pd.read_csv('processed_dataset.csv')
-
-# Separate the features and the target variable
-X = df.drop('NObeyesdad', axis=1)  # assuming 'NObeyesdad' is the target
-y = df['NObeyesdad']
-
-# Split the data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Initialize classifiers
-classifiers = {
-    'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
-    'SVM': SVC(random_state=42),
-    'Logistic Regression': LogisticRegression(random_state=42),
-    'Decision Tree': DecisionTreeClassifier(random_state=42)
-}
-
-# Train and evaluate classifiers before feature selection
-results_before = {}
-for name, clf in classifiers.items():
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    results_before[name] = accuracy
-
-# Get feature importances from Random Forest
-rf = classifiers['Random Forest']
-rf.fit(X_train, y_train)
-importances = rf.feature_importances_
-features = X.columns
-feature_importances = pd.DataFrame({'Feature': features, 'Importance': importances})
-feature_importances = feature_importances.sort_values(by='Importance', ascending=False)
-
-# Set a threshold for feature importance
-threshold = 0.06
-
-# Drop features with importance below the threshold
-selected_features = feature_importances[feature_importances['Importance'] >= threshold]['Feature']
-X_selected = X[selected_features]
-
-# Split the data into training and test sets using selected features
-X_train_selected, X_test_selected, _, _ = train_test_split(X_selected, y, test_size=0.2, random_state=42)
-
-# Train and evaluate classifiers after feature selection
-results_after = {}
-for name, clf in classifiers.items():
-    clf.fit(X_train_selected, y_train)
-    y_pred_selected = clf.predict(X_test_selected)
-    accuracy_selected = accuracy_score(y_test, y_pred_selected)
-    results_after[name] = accuracy_selected
-
-# Print results
-print("Accuracy before feature selection:")
-for name, acc in results_before.items():
-    print(f"{name}: {acc:.2f}")
-
-print("\nAccuracy after feature selection:")
-for name, acc in results_after.items():
-    print(f"{name}: {acc:.2f}")'''
-
-
-
-
-#ONLY RANDOM FOREST :
-'''import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
-
-# Load the preprocessed dataset
-df = pd.read_csv('processed_dataset.csv')
-
-# Separate the features and the target variable
-X = df.drop('NObeyesdad', axis=1)  # assuming 'NObeyesdad' is the target
-y = df['NObeyesdad']
-
-# Split the data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Initialize the RandomForestClassifier
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-
-# Fit the model
-rf.fit(X_train, y_train)
-
-# Predict on the test set
-y_pred = rf.predict(X_test)
-
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy of the RandomForest model: {accuracy:.2f}")
-
-# Get feature importances
-importances = rf.feature_importances_
-features = X.columns
-
-# Create a DataFrame to view the features and their importance scores
-feature_importances = pd.DataFrame({'Feature': features, 'Importance': importances})
-feature_importances = feature_importances.sort_values(by='Importance', ascending=False)
-
-# Plotting feature importances
-plt.figure(figsize=(12, 8))
-plt.barh(feature_importances['Feature'], feature_importances['Importance'])
-plt.xlabel('Importance')
-plt.ylabel('Features')
-plt.title('Feature Importance')
-plt.gca().invert_yaxis()  # Invert the Y-axis to show the most important at the top
-plt.show()
-
-# Set a threshold for feature importance
-threshold = 0.06  #best : .06
-
-# Drop features with importance below the threshold
-selected_features = feature_importances[feature_importances['Importance'] >= threshold]['Feature']
-X_selected = X[selected_features]
-
-# Split the data into training and test sets using selected features
-X_train_selected, X_test_selected, y_train, y_test = train_test_split(X_selected, y, test_size=0.2, random_state=42)
-
-# Retrain the model with selected features
-rf_selected = RandomForestClassifier(n_estimators=100, random_state=42)
-rf_selected.fit(X_train_selected, y_train)
-
-# Predict on the test set using selected features
-y_pred_selected = rf_selected.predict(X_test_selected)
-
-# Evaluate the model with selected features
-accuracy_selected = accuracy_score(y_test, y_pred_selected)
-print(f"Accuracy of the RandomForest model with selected features: {accuracy_selected:.2f}")
-'''
