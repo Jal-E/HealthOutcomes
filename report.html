@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Obesity Dataset Report</title>
+    <style>
+        .plot-container {
+            margin-bottom: 60px; /* Increased margin for more spacing */
+        }
+        .plot-inner-container {
+            margin-bottom: 80px; /* Additional margin for all plots */
+        }
+    </style>
+</head>
+<body>
+    <div class="plot-container">
+        <h1>Data Information</h1>
+        <pre><class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2111 entries, 0 to 2110
+Data columns (total 17 columns):
+ #   Column                          Non-Null Count  Dtype  
+---  ------                          --------------  -----  
+ 0   Gender                          2111 non-null   object 
+ 1   Age                             2111 non-null   float64
+ 2   Height                          2111 non-null   float64
+ 3   Weight                          2111 non-null   float64
+ 4   family_history_with_overweight  2111 non-null   object 
+ 5   FAVC                            2111 non-null   object 
+ 6   FCVC                            2111 non-null   float64
+ 7   NCP                             2111 non-null   float64
+ 8   CAEC                            2111 non-null   object 
+ 9   SMOKE                           2111 non-null   object 
+ 10  CH2O                            2111 non-null   float64
+ 11  SCC                             2111 non-null   object 
+ 12  FAF                             2111 non-null   float64
+ 13  TUE                             2111 non-null   float64
+ 14  CALC                            2111 non-null   object 
+ 15  MTRANS                          2111 non-null   object 
+ 16  NObeyesdad                      2111 non-null   object 
+dtypes: float64(8), object(9)
+memory usage: 280.5+ KB
+</pre>
+    </div>
+
+    <div class="plot-container">
+        <h1>Data Description</h1>
+        <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Gender</th>
+      <th>Age</th>
+      <th>Height</th>
+      <th>Weight</th>
+      <th>family_history_with_overweight</th>
+      <th>FAVC</th>
+      <th>FCVC</th>
+      <th>NCP</th>
+      <th>CAEC</th>
+      <th>SMOKE</th>
+      <th>CH2O</th>
+      <th>SCC</th>
+      <th>FAF</th>
+      <th>TUE</th>
+      <th>CALC</th>
+      <th>MTRANS</th>
+      <th>NObeyesdad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>2111</td>
+      <td>2111.000000</td>
+      <td>2111.000000</td>
+      <td>2111.000000</td>
+      <td>2111</td>
+      <td>2111</td>
+      <td>2111.000000</td>
+      <td>2111.000000</td>
+      <td>2111</td>
+      <td>2111</td>
+      <td>2111.000000</td>
+      <td>2111</td>
+      <td>2111.000000</td>
+      <td>2111.000000</td>
+      <td>2111</td>
+      <td>2111</td>
+      <td>2111</td>
+    </tr>
+    <tr>
+      <th>unique</th>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>4</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>4</td>
+      <td>5</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>top</th>
+      <td>Male</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Sometimes</td>
+      <td>no</td>
+      <td>NaN</td>
+      <td>no</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Sometimes</td>
+      <td>Public_Transportation</td>
+      <td>Obesity_Type_I</td>
+    </tr>
+    <tr>
+      <th>freq</th>
+      <td>1068</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1726</td>
+      <td>1866</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1765</td>
+      <td>2067</td>
+      <td>NaN</td>
+      <td>2015</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1401</td>
+      <td>1580</td>
+      <td>351</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>NaN</td>
+      <td>24.312600</td>
+      <td>1.701677</td>
+      <td>86.586058</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.419043</td>
+      <td>2.685628</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.008011</td>
+      <td>NaN</td>
+      <td>1.010298</td>
+      <td>0.657866</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>NaN</td>
+      <td>6.345968</td>
+      <td>0.093305</td>
+      <td>26.191172</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.533927</td>
+      <td>0.778039</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.612953</td>
+      <td>NaN</td>
+      <td>0.850592</td>
+      <td>0.608927</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>NaN</td>
+      <td>14.000000</td>
+      <td>1.450000</td>
+      <td>39.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>NaN</td>
+      <td>19.947192</td>
+      <td>1.630000</td>
+      <td>65.473343</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.000000</td>
+      <td>2.658738</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.584812</td>
+      <td>NaN</td>
+      <td>0.124505</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>NaN</td>
+      <td>22.777890</td>
+      <td>1.700499</td>
+      <td>83.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.385502</td>
+      <td>3.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.000000</td>
+      <td>NaN</td>
+      <td>1.000000</td>
+      <td>0.625350</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>NaN</td>
+      <td>26.000000</td>
+      <td>1.768464</td>
+      <td>107.430682</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3.000000</td>
+      <td>3.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.477420</td>
+      <td>NaN</td>
+      <td>1.666678</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>NaN</td>
+      <td>61.000000</td>
+      <td>1.980000</td>
+      <td>173.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3.000000</td>
+      <td>4.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3.000000</td>
+      <td>NaN</td>
+      <td>3.000000</td>
+      <td>2.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+    <div class="plot-container">
+        <h1>First Few Rows</h1>
+        <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Gender</th>
+      <th>Age</th>
+      <th>Height</th>
+      <th>Weight</th>
+      <th>family_history_with_overweight</th>
+      <th>FAVC</th>
+      <th>FCVC</th>
+      <th>NCP</th>
+      <th>CAEC</th>
+      <th>SMOKE</th>
+      <th>CH2O</th>
+      <th>SCC</th>
+      <th>FAF</th>
+      <th>TUE</th>
+      <th>CALC</th>
+      <th>MTRANS</th>
+      <th>NObeyesdad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Female</td>
+      <td>21.0</td>
+      <td>1.62</td>
+      <td>64.0</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>Sometimes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>no</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>no</td>
+      <td>Public_Transportation</td>
+      <td>Normal_Weight</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Female</td>
+      <td>21.0</td>
+      <td>1.52</td>
+      <td>56.0</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>Sometimes</td>
+      <td>yes</td>
+      <td>3.0</td>
+      <td>yes</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>Sometimes</td>
+      <td>Public_Transportation</td>
+      <td>Normal_Weight</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Male</td>
+      <td>23.0</td>
+      <td>1.80</td>
+      <td>77.0</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>Sometimes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>Frequently</td>
+      <td>Public_Transportation</td>
+      <td>Normal_Weight</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Male</td>
+      <td>27.0</td>
+      <td>1.80</td>
+      <td>87.0</td>
+      <td>no</td>
+      <td>no</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>Sometimes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>Frequently</td>
+      <td>Walking</td>
+      <td>Overweight_Level_I</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Male</td>
+      <td>22.0</td>
+      <td>1.78</td>
+      <td>89.8</td>
+      <td>no</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>Sometimes</td>
+      <td>no</td>
+      <td>2.0</td>
+      <td>no</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>Sometimes</td>
+      <td>Public_Transportation</td>
+      <td>Overweight_Level_II</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Histograms of Numeric Features</h1>
+            <img src="../HealthOutcome/histograms.png" width="800">
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Box Plots of Numeric Features</h1>
+            <img src="../HealthOutcome/boxplots.png" width="800">
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Bar Plots of Categorical Features</h1>
+            <img src="../HealthOutcome/barplots.png" width="800">
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Correlation Heatmap</h1>
+            <img src="../HealthOutcome/heatmap.png" width="800">
+        </div>
+    </div>
+</body>
+</html>
