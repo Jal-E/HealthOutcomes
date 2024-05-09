@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Obesity Dataset Report</title>
+    <style>
+        .plot-container {
+            margin-bottom: 60px; /* Increased margin for more spacing */
+        }
+        .plot-inner-container {
+            margin-bottom: 80px; /* Additional margin for all plots */
+        }
+    </style>
+</head>
+<body>
+    <div class="plot-container">
+        <h1>Data Information</h1>
+        <pre>{{ data_info }}</pre>
+    </div>
+
+    <div class="plot-container">
+        <h1>Data Description</h1>
+        {{ description | safe }}
+    </div>
+
+    <div class="plot-container">
+        <h1>First Few Rows</h1>
+        {{ head | safe }}
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Histograms of Numeric Features</h1>
+            {{ histogram | safe }}
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Box Plots of Numeric Features</h1>
+            {{ boxplot | safe }}
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Bar Plots of Categorical Features</h1>
+            {{ barplot | safe }}
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div class="plot-inner-container">
+            <h1>Correlation Heatmap</h1>
+            {{ heatmap | safe }}
+        </div>
+    </div>
+</body>
+</html>
