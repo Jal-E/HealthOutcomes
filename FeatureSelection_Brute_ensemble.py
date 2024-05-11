@@ -172,9 +172,9 @@ plot_results(results_after, 'F1 Score')
 
 # Check performance for all models including Stacking Classifier
 print("\nComparison with Paper's Baseline Results:")
-paper_baselines = {'Random Forest': 97.64, 'KNN': 87.23, 'SVM': 95.50, 'Logistic Regression': 94.60, 'Stacking Classifier': 98.00}
+paper_baselines = {'Random Forest': 97.64, 'KNN': 87.23, 'SVM': 87.47, 'Logistic Regression': 0, 'Stacking Classifier': 97.87
 
-for model_name in classifiers.keys():  # Use classifiers dictionary to ensure all models are covered
+for model_name in classifiers.keys():  # Using classifiers dictionary to ensure all models are covered
     your_best = max((results_k_variation[k].get(model_name, {}).get('Accuracy', 0) for k in [10, 20, 30]), default=0) * 100
     print(f"{model_name:<20} | {your_best:>18.2f}% | {paper_baselines.get(model_name, 'N/A'):>15}%")
 
